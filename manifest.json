@@ -1,11 +1,11 @@
 {
-	"id": "sample-plugin",
-	"name": "Sample Plugin",
+	"id": "meeting-cleanup-plugin",
+	"name": "Meeting Clean Plugin",
 	"version": "1.0.0",
 	"minAppVersion": "0.15.0",
-	"description": "Demonstrates some of the capabilities of the Obsidian API.",
-	"author": "Obsidian",
-	"authorUrl": "https://obsidian.md",
-	"fundingUrl": "https://obsidian.md/pricing",
+	"description": "Plugin created to work in conjection with incoming meeting notes to clean up notes. Assumes People, Meetings, Companies, and Projects",
+	"author": "Chuck Charbeneau",
+	"authorUrl": "https://chuckcharbeneau.com",
+	"fundingUrl": "https://www.buymeacoffee.com/cacharbe",
 	"isDesktopOnly": false
 }

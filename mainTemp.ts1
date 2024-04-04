@@ -1,0 +1,105 @@
+import {  App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting, TFile, TFolder, parseFrontMatter } from 'obsidian';
+import MeetingCleanupSettingTab from './meetingCleaupSettings';
+import { Person } from './person';
+
+// Remember to rename these classes and interfaces!
+
+interface MeetingCleanupSettings {
+	mySetting: string;
+}
+
+const DEFAULT_SETTINGS: MeetingCleanupSettings = {
+	mySetting: 'default'
+}
+
+export default class MeetingCleanup extends Plugin {
+	constructor() {
+        super();
+      this.people = new Map();
+    }
+	settings: MeetingCleanupSettings;
+	people: Map<string, Person>;
+
+	async onload() {
+		//await this.loadSettings();
+		
+		// This creates an icon in the left ribbon.
+		const ribbonIconEl = this.addRibbonIcon('mail-check', 'MeetingCleanup Plugin', async (evt: MouseEvent) => {
+			await this.loadPeople();
+			await this.cleanupMeetings();
+			new Notice('Meeting cleanup complete!');
+		});
+		
+				
+
+		// This adds a settings tab so the user can configure various aspects of the plugin
+		this.addSettingTab(new MeetingCleanupSettingTab(this.app, this));
+
+	}
+
+	onunload() {
+
+	}
+
+
+	async loadSettings() {
+		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+	}
+
+	async saveSettings() {
+		await this.saveData(this.settings);
+	}
+
+	async loadPeople() {
+        const peopleDir = '/people';
+        const files = this.vault.getMarkdownFiles().filter(file => file.path.startsWith(peopleDir));
+
+        for (const file of files) {
+            const fileContent = await this.vault.read(file);
+            const frontmatter = this.parseFrontMatter(fileContent);
+
+            const person = new Person(frontmatter);
+            this.people.set(person.email, person);
+        }
+    }
+
+	async cleanupMeetings() {
+        const meetingsDir = '/meetings';
+        const files = this.vault.getMarkdownFiles().filter(file => file.path.startsWith(meetingsDir));
+
+        for (const file of files) {
+            let fileContent = await this.vault.read(file);
+
+            // Replace all email addresses with person links
+            fileContent = fileContent.replace(/(\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b)/g, (email) => {
+                const person = this.people.get(email);
+                return person ? person.createLink() : email;
+            });
+
+            await this.vault.modify(file, fileContent);
+        }
+    }
+  
+	
+	parseFrontMatter(content: string): any {
+    const frontMatter = parseFrontMatter(content);
+    return frontMatter;
+	}
+}
+
+class MeetingCleanupModal extends Modal {
+	constructor(app: App) {
+		super(app);
+	}
+
+	onOpen() {
+		const {contentEl} = this;
+		contentEl.setText('Woah!');
+	}
+
+	onClose() {
+		const {contentEl} = this;
+		contentEl.empty();
+	}
+}
+
