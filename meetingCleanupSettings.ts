@@ -10,24 +10,55 @@ export default class MeetingCleanupSettingTab extends PluginSettingTab {
 		super(app, plugin);
 		this.plugin = plugin;
 	}
-	//test
-	//test
-
 
 	display(): void {
-		const {containerEl} = this;
+		const { containerEl } = this;
 
 		containerEl.empty();
+		new Setting(containerEl)
+			.setName('People Directory')
+			.setDesc('Select the directory that contains people')
+			.addDropdown(dropdown => {
+				dropdown.addOption('', 'Select a directory');
+				const directories = new Set(this.app.vault.getFiles().map(file => file.parent.path));
+				directories.forEach(dir => {
+					dropdown.addOption(dir, dir);
+				});
+				dropdown.setValue(this.plugin.settings.peopleDir);
+				dropdown.onChange(async (value) => {
+					this.plugin.settings.peopleDir = value;
+					await this.plugin.saveSettings();
+				});
+			});
 
 		new Setting(containerEl)
-			.setName('Setting #1')
-			.setDesc('It\'s a secret')
-			.addText(text => text
-				.setPlaceholder('Enter your secret')
-				.setValue(this.plugin.settings.mySetting)
-				.onChange(async (value) => {
-					this.plugin.settings.mySetting = value;
+			.setName('Meetings Directory')
+			.setDesc('Select the directory that contains meetings')
+			.addDropdown(dropdown => {
+				dropdown.addOption('', 'Select a directory');
+
+				const directories = new Set(this.app.vault.getFiles().map(file => file.parent.path));
+				directories.forEach(dir => {
+					dropdown.addOption(dir, dir);
+				});
+				dropdown.setValue(this.plugin.settings.meetingsDir);
+				dropdown.onChange(async (value) => {
+					this.plugin.settings.meetingsDir = value;
 					await this.plugin.saveSettings();
-				}));
+				});
+
+			});
+
+		new Setting(containerEl)
+			.setName('Email Domain and Company Pairs')
+			.setDesc('Enter email domain and company name pairs, one per line, in the format "domain: company"')
+			.addTextArea(textArea => {
+				textArea.setValue(this.plugin.settings.domainCompanyPairs.join('\n'));
+				textArea.onChange(async (value) => {
+					this.plugin.settings.domainCompanyPairs = value.split('\n').map(line => line.trim());
+					await this.plugin.saveSettings();
+				});
+			});
+
 	}
 }
