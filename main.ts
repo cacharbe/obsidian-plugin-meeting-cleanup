@@ -23,7 +23,7 @@ export default class MeetingCleanup extends Plugin {
 	async onload() {
 		await this.loadSettings();
 		this.people = new Map();
-		this.loadPeople();
+		await this.loadPeople();
 
 		const ribbonIconEl = this.addRibbonIcon('mail-check', 'MeetingCleanup Plugin', async (evt: MouseEvent) => {
 			await this.loadPeople();
@@ -42,6 +42,7 @@ export default class MeetingCleanup extends Plugin {
 						new Notice(personMsg);
 						await this.cleanupMeetings();
 					} else if (file instanceof TFile && file.path.startsWith(this.settings.meetingsDir)) {
+						await this.loadPeople();
 						await this.cleanupSingleMeeting(file);
 					}
 				})
@@ -101,10 +102,12 @@ export default class MeetingCleanup extends Plugin {
 			// Check if the organizer tag exists and is an email address
 			if (frontMatter.organizer && /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/.test(frontMatter.organizer)) {
 				// Get the domain of the organizer email
+				//console.log(`ORGANIZER: ${frontMatter.organizer}`);
 				const domain = frontMatter.organizer.split('@')[1].toLowerCase();
 
 				// Check if the domain matches one of the domain-company pairs
 				if (domainCompanyMap.has(domain)) {
+					//console.log(`DOMAIN: ${domain}`);
 					frontMatter.company = domainCompanyMap.get(domain);
 				}
 			}
@@ -116,9 +119,14 @@ export default class MeetingCleanup extends Plugin {
 		let newFileContent = await this.app.vault.read(file);
 		newFileContent = newFileContent.replace(/(\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b)/g, (email: string) => {
 			const person = this.people.get(email);
-			return person ? person.createLink() : email;
+			const name = person ? person.name : email;
+			const createLink = person ? person.createLink : false;
+			// Check if the person exists and the createLink attribute is true
+			return person && createLink ? person.createPersonLink() : name;
 		});
 
 		await this.app.vault.modify(file, newFileContent);
+		const mtgMsg = `New Meeting Created at: ${file.basename}`;
+		new Notice(mtgMsg);
 	}
 }

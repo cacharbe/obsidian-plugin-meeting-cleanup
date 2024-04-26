@@ -5,7 +5,8 @@ export class Person {
     company: string;
     location: string;
     title: string;
-    email: string;
+	email: string;
+	createLink: boolean;
     client: string[];
     aliases: string;
     languages: string;
@@ -20,7 +21,8 @@ export class Person {
         this.company = data.company;
         this.location = data.location;
         this.title = data.title;
-        this.email = data.email;
+		this.email = data.email;
+		this.createLink = data.createLink;
         this.client = data.client;
         this.aliases = data.aliases;
         this.languages = data.languages;
@@ -30,7 +32,7 @@ export class Person {
         this.linkedin = data.linkedin;
     }
 
-    createLink(): string {
+    createPersonLink(): string {
        return `[[${this.name}]]`;
     }
 }
