@@ -15,18 +15,31 @@ const DEFAULT_SETTINGS: MeetingCleanupSettings = {
 	domainCompanyPairs: []
 }
 
+
+
+interface Rule {
+	meetingName: string;
+	companyName: string;
+	projectName: string;
+}
+
+const DEFAULT_RULES: Rule[] = [];
+
 export default class MeetingCleanup extends Plugin {
 
 	settings: MeetingCleanupSettings;
 	people: Map<string, Person>;
+	rules: Rule[];
 
 	async onload() {
 		await this.loadSettings();
 		this.people = new Map();
 		await this.loadPeople();
+		await this.loadRules();
 
-		const ribbonIconEl = this.addRibbonIcon('mail-check', 'MeetingCleanup Plugin', async (evt: MouseEvent) => {
+		const ribbonIconEl = this.addRibbonIcon('axe', 'MeetingCleanup Plugin', async (evt: MouseEvent) => {
 			await this.loadPeople();
+			await this.loadRules();
 			await this.cleanupMeetings();
 			new Notice('Meeting cleanup complete!');
 		});
@@ -78,6 +91,24 @@ export default class MeetingCleanup extends Plugin {
 		}
 	}
 
+	async loadRules() {
+		const rulesFile = this.app.vault.getAbstractFileByPath('rules.json');
+		if (!rulesFile) {
+			await this.app.vault.create('rules.json', JSON.stringify(DEFAULT_RULES, null, 2));
+			this.rules = DEFAULT_RULES;
+		} else {
+			const fileContent = await this.app.vault.read(rulesFile as TFile);
+			this.rules = JSON.parse(fileContent);
+		}
+	}
+
+	async saveRules() {
+		const rulesFile = this.app.vault.getAbstractFileByPath('rules.json');
+		if (rulesFile) {
+			await this.app.vault.modify(rulesFile as TFile, JSON.stringify(this.rules, null, 2));
+		}
+	}
+
 	async cleanupMeetings() {
 		const meetingsDir = this.settings.meetingsDir;
 		const files = this.app.vault.getMarkdownFiles()
@@ -85,18 +116,20 @@ export default class MeetingCleanup extends Plugin {
 
 		for (const file of meetingFiles) {
 			await this.cleanupSingleMeeting(file);
-			const msg = `Cleaned up meeting: ${file.basename}`;
-			new Notice(msg);
+			//const msg = `Cleaned up meeting: ${file.basename}`;
+			//new Notice(msg);
 		}
 	}
 
 	async cleanupSingleMeeting(file: TFile) {
-		// Create a map of the domain-company pairs
+		// Create a map of the domain-company pairs from settings
 		const domainCompanyMap = new Map(this.settings.domainCompanyPairs.map((pair: string) => {
 			const [domain, company] = pair.split(':').map((s: string) => s.trim());
 			return [domain.toLowerCase(), company];
 		}));
 
+		file.basename = file.basename.trimEnd();
+		console.log(`Cleaning Up Meeting: ${file.basename}`);
 		// Update the front matter of the file
 		await this.app.fileManager.processFrontMatter(file, (frontMatter) => {
 			// Check if the organizer tag exists and is an email address
@@ -112,6 +145,18 @@ export default class MeetingCleanup extends Plugin {
 				}
 			}
 
+			// Apply rules based on the meeting title
+			// Extract the title without the date stamp
+			//const titleWithoutDate = trimmedTitle.replace(/^\d{4}-\d{2}-\d{2} /, '');
+			//const titleWithoutDate = frontMatter.title;
+		
+            const titleWithoutDate = frontMatter.title.replace(/^\d{4}-\d{2}-\d{2} /, '');
+			const rule = this.rules.find(rule => rule.meetingName === titleWithoutDate);
+			if (rule) {
+
+				frontMatter.company = rule.companyName;
+				frontMatter.project = rule.projectName;
+			}
 			return frontMatter;
 		});
 
