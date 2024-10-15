@@ -1,7 +1,7 @@
 {
 	"name": "meeting-cleanup-plugin",
-	"version": "1.0.0",
-	"description": "This is a sample plugin for Obsidian (https://obsidian.md)",
+	"version": "1.0.1",
+	"description": "This plugin is designed to work in conjunction with other automations or processes that automatically creating meeting notes.",
 	"main": "main.js",
 	"scripts": {
 		"dev": "node esbuild.config.mjs",

@@ -15,12 +15,11 @@ const DEFAULT_SETTINGS: MeetingCleanupSettings = {
 	domainCompanyPairs: []
 }
 
-
-
 interface Rule {
 	meetingName: string;
 	companyName: string;
 	projectName: string;
+	matchType: 'exact' | 'contains';
 }
 
 const DEFAULT_RULES: Rule[] = [];
@@ -151,7 +150,17 @@ export default class MeetingCleanup extends Plugin {
 			//const titleWithoutDate = frontMatter.title;
 		
             const titleWithoutDate = frontMatter.title.replace(/^\d{4}-\d{2}-\d{2} /, '');
-			const rule = this.rules.find(rule => rule.meetingName === titleWithoutDate);
+			//const rule = this.rules.find(rule => rule.meetingName === titleWithoutDate);
+			const rule = this.rules.find(rule => {
+				switch (rule.matchType) {
+					case 'exact':
+						return rule.meetingName === titleWithoutDate;
+					case 'contains':
+						return titleWithoutDate.includes(rule.meetingName);
+					default:
+						return false;
+				}
+			});
 			if (rule) {
 
 				frontMatter.company = rule.companyName;

@@ -1,11 +1,11 @@
 {
 	"id": "meeting-cleanup-plugin",
-	"name": "Meeting Clean Plugin",
-	"version": "1.0.0",
+	"name": "Meeting Clean Up Plugin",
+	"version": "1.0.1",
 	"minAppVersion": "0.15.0",
-	"description": "Plugin created to work in conjection with incoming meeting notes to clean up notes. Assumes People, Meetings, Companies, and Projects",
+	"description": "Plugin created to work in conjunction with incoming meeting notes to clean up notes. Assumes People, Meetings, Companies, and Projects",
 	"author": "Chuck Charbeneau",
 	"authorUrl": "https://chuckcharbeneau.com",
 	"fundingUrl": "https://www.buymeacoffee.com/cacharbe",
-	"isDesktopOnly": false
+	"isDesktopOnly": true
 }
