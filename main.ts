@@ -61,6 +61,19 @@ export default class MeetingCleanup extends Plugin {
 			);
 		});
 
+		// Watch for changes to the rules.json file
+		const rulesFile = this.app.vault.getAbstractFileByPath('rules.json');
+		if (rulesFile instanceof TFile) {
+			this.registerEvent(
+				this.app.vault.on('modify', async (file: TFile) => {
+					if (file.path === 'rules.json') {
+						await this.loadRules();
+						new Notice('Rules reloaded due to changes in rules.json');
+					}
+				})
+			);
+		}
+
 		console.log("MeetingCleanup loaded");
 	}
 
