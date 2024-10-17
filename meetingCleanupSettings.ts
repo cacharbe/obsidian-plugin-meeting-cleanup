@@ -20,7 +20,7 @@ export default class MeetingCleanupSettingTab extends PluginSettingTab {
 			.setDesc('Select the directory that contains people')
 			.addDropdown(dropdown => {
 				dropdown.addOption('', 'Select a directory');
-				const directories = new Set(this.app.vault.getFiles().map(file => file.parent.path));
+				const directories = new Set(this.app.vault.getFiles().map(file => file.parent!.path));
 				directories.forEach(dir => {
 					dropdown.addOption(dir, dir);
 				});
@@ -37,7 +37,7 @@ export default class MeetingCleanupSettingTab extends PluginSettingTab {
 			.addDropdown(dropdown => {
 				dropdown.addOption('', 'Select a directory');
 
-				const directories = new Set(this.app.vault.getFiles().map(file => file.parent.path));
+				const directories = new Set(this.app.vault.getFiles().map(file => file.parent!.path));
 				directories.forEach(dir => {
 					dropdown.addOption(dir, dir);
 				});
