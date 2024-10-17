@@ -68,7 +68,7 @@ export default class MeetingCleanup extends Plugin {
 				this.app.vault.on('modify', async (file: TFile) => {
 					if (file.path === 'rules.json') {
 						await this.loadRules();
-						new Notice('Rules reloaded due to changes in rules.json');
+						new Notice('Meeting Rules reloaded due to changes in rules.json');
 					}
 				})
 			);
