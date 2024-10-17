@@ -38,7 +38,7 @@ jobs:
       run: cp manifest.json dist/
 
     - name: Copy readme.md to dist
-      run: cp readme.md dist/
+      run: cp README.md dist/
 
     - name: Commit and push changes
       run: |
