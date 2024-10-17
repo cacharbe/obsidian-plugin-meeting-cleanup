@@ -92,13 +92,13 @@ export default class MeetingCleanup extends Plugin {
 	async loadPeople() {
 		const peopleDir = 'people';
 		const files = this.app.vault.getMarkdownFiles();
-		let filtered = files.filter(file => file.path.startsWith(peopleDir));
+		const filtered = files.filter(file => file.path.startsWith(peopleDir));
 
 		for (const file of filtered) {
 			const personName = file.basename.replace(/\.md$/, ''); // Remove the .md extension
 			const fileContent = await this.app.vault.cachedRead(file);
 			const frontmatter = getFrontMatterInfo(fileContent);
-			let person = new Person(personName, frontmatter.frontmatter);
+			const person = new Person(personName, frontmatter.frontmatter);
 			this.people.set(person.email, person);
 		}
 	}
