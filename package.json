@@ -4,7 +4,7 @@
 	"description": "This plugin is designed to work in conjunction with other automations or processes that automatically creating meeting notes.",
 	"main": "main.js",
 	"scripts": {
-		"build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
+		"build": "tsc -skipLibCheck && node esbuild.config.mjs production",
 		"dev": "node esbuild.config.mjs",
 		"version": "node version-bump.mjs && git add manifest.json versions.json"
 	},
